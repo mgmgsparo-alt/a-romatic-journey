@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Romantic Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #fff0f3 0%, #fdf2f8 50%, #f0e6ea 100%);
+        }
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+        .fade-transition {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+        .fade-in {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Floating Hearts Animation */
+        .floating-heart {
+            position: fixed;
+            bottom: -20px;
+            color: rgba(244, 63, 94, 0.2); /* Rose-500 with low opacity */
+            animation: float 10s infinite linear;
+            z-index: -1;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden text-gray-800">
+
+    <!-- Floating Background Elements -->
+    <div id="floating-bg"></div>
+
+    <div class="w-full max-w-lg mx-auto z-10">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="font-cursive text-5xl md:text-6xl text-rose-600 mb-2 drop-shadow-sm tracking-wide">
+                Our Journey
+            </h1>
+            <p class="text-sm md:text-base text-rose-400 italic">Every picture tells our story...</p>
+        </div>
+
+        <!-- Image Gallery Frame -->
+        <div class="bg-white p-3 md:p-4 rounded-2xl shadow-2xl transform transition-transform hover:scale-[1.01] duration-300">
+            <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-[3/4] flex items-center justify-center">
+                <!-- Main Image -->
+                <img id="main-image" src="P%201.jpeg" alt="Romantic Scene" class="w-full h-full object-cover fade-transition fade-in shadow-inner">
+                
+                <!-- Loading indicator (optional) -->
+                <div id="loader" class="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 hidden">
+                    <svg class="animate-spin h-8 w-8 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="flex flex-col items-center mt-8 gap-4">
+            
+            <!-- Indicators / Icons -->
+            <div id="dots-container" class="flex gap-3 justify-center items-center">
+                <!-- Dots will be injected by JS -->
+            </div>
+
+            <!-- Arrow Buttons -->
+            <div class="flex gap-6 mt-2">
+                <button id="prev-btn" class="p-3 bg-white text-rose-500 rounded-full shadow-md hover:bg-rose-50 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-300 transform hover:-translate-x-1 duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="next-btn" class="p-3 bg-white text-rose-500 rounded-full shadow-md hover:bg-rose-50 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-300 transform hover:translate-x-1 duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Story Text -->
+        <div class="text-center mt-6 h-12">
+            <p id="story-text" class="text-gray-600 italic fade-transition fade-in"></p>
+        </div>
+    </div>
+
+    <script>
+        // Array of images exactly as requested
+        const slides = [
+            { src: "P%201.jpeg", text: "ရုပ်ရှင်ဆန်ဆန် အစပြုခဲ့တဲ့ ငါတို့ရဲ့ ဇာတ်လမ်း..." },
+            { src: "P%202.jpeg", text: "အမှတ်တရများစွာနဲ့ ဖြတ်သန်းခဲ့တဲ့ နေ့ရက်တွေ..." },
+            { src: "P%203.jpg",  text: "အပြုံးတွေ၊ ပျော်ရွှင်မှုတွေနဲ့ တည်ဆောက်ခဲ့တဲ့ ကမ္ဘာလေး..." },
+            { src: "P%204.jpeg", text: "ခရီးစဉ်တိုင်းမှာ မင်းနဲ့အတူတူ..." },
+            { src: "P%205.jpeg", text: "ငါဘဝရဲ့ အလှပဆုံး ခရီးစဉ်တစ်ခုပါပဲ..." }
+        ];
+
+        let currentIndex = 0;
+        const mainImage = document.getElementById('main-image');
+        const storyText = document.getElementById('story-text');
+        const dotsContainer = document.getElementById('dots-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        // SVG string for heart icon
+        const heartSvg = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-6 h-6 transition-all duration-300">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        `;
+
+        // Initialize dots
+        function initDots() {
+            slides.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = heartSvg;
+                btn.className = `focus:outline-none transform hover:scale-110 transition-transform duration-200`;
+                btn.onclick = () => goToSlide(index);
+                dotsContainer.appendChild(btn);
+            });
+            updateUI();
+        }
+
+        // Update Image, Text, and Active Dot
+        function updateUI() {
+            // Update active states for dots
+            const dots = dotsContainer.children;
+            for (let i = 0; i < dots.length; i++) {
+                const svg = dots[i].querySelector('svg');
+                if (i === currentIndex) {
+                    svg.classList.add('fill-rose-500', 'text-rose-500', 'scale-125');
+                    svg.classList.remove('fill-none', 'text-rose-300');
+                } else {
+                    svg.classList.add('fill-none', 'text-rose-300');
+                    svg.classList.remove('fill-rose-500', 'text-rose-500', 'scale-125');
+                }
+            }
+
+            // Crossfade transition
+            mainImage.classList.remove('fade-in');
+            mainImage.classList.add('fade-out');
+            storyText.classList.remove('fade-in');
+            storyText.classList.add('fade-out');
+
+            setTimeout(() => {
+                mainImage.src = slides[currentIndex].src;
+                storyText.innerText = slides[currentIndex].text;
+                
+                mainImage.onload = () => {
+                    mainImage.classList.remove('fade-out');
+                    mainImage.classList.add('fade-in');
+                    storyText.classList.remove('fade-out');
+                    storyText.classList.add('fade-in');
+                };
+            }, 300); // Wait for fade out to complete before changing src
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex === slides.length - 1) ? 0 : currentIndex + 1;
+            updateUI();
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex === 0) ? slides.length - 1 : currentIndex - 1;
+            updateUI();
+        }
+
+        function goToSlide(index) {
+            if (currentIndex !== index) {
+                currentIndex = index;
+                updateUI();
+            }
+        }
+
+        // Event Listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        // Generate Floating Hearts Background
+        function createFloatingHearts() {
+            const container = document.getElementById('floating-bg');
+            const heartCount = 15;
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤';
+                heart.className = 'floating-heart text-2xl';
+                heart.style.left = `${Math.random() * 100}vw`;
+                heart.style.animationDuration = `${Math.random() * 5 + 8}s`; // 8 to 13 seconds
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                heart.style.fontSize = `${Math.random() * 20 + 10}px`;
+                container.appendChild(heart);
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            initDots();
+            createFloatingHearts();
+        };
+    </script>
+</body>
+</html>
